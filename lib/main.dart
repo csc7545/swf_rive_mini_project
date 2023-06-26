@@ -134,6 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 300,
               child: Column(
                 children: [
+                  Text(
+                    '${ (_rotation*180/3.14*100).floor()/100 }'
+                  ),
                   Slider(
                     min: 0,
                     max: 3.14,
