@@ -3,6 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:rive/components.dart';
 import 'package:rive/rive.dart';
+import 'package:rive_test/flowChart/flutter_flow_chart.dart';
+import 'package:rive_test/flowChart/src/elements/action_element.dart';
+import 'package:rive_test/flowChart/src/elements/algorithm_flow.dart';
+import 'package:rive_test/flowChart/src/elements/data_element.dart';
+import 'package:rive_test/flowChart/src/elements/start_element.dart';
+
+import 'flowChart/src/elements/condition_element.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,6 +63,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // bool _fire = false;
 
+  Dashboard _dashboard = Dashboard();
+
+  FlowElement start = StartElement(
+
+  );
+
+  FlowElement end = EndElement();
+
+  @override
+  void initState(){
+    super.initState();
+    _dashboard.addElement(start);
+    _dashboard.addElement(end);
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -78,6 +100,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Node? _node;
   double _rotation = 0;
   bool _firing = false;
+
+  double _posX = 100;
+  double _posY = 100;
+
+  bool _open = false;
 
   void _tankInit(Artboard board){
     final cont = StateMachineController.fromArtboard(board, 'State Machine 1', onStateChange: _onChange);
@@ -133,52 +160,209 @@ class _MyHomePageState extends State<MyHomePage> {
         // in the middle of the parent.
         child: Stack(
           children: [
-            RiveAnimation.asset(
-              'assets/tank.riv',
-              stateMachines: ['State Machine 1'],
-              controllers: [animController],
-              onInit: _tankInit,
+            // RiveAnimation.asset(
+            //   'assets/tank.riv',
+            //   stateMachines: ['State Machine 1'],
+            //   controllers: [animController],
+            //   onInit: _tankInit,
+            // ),
+            // SizedBox(
+            //   width: 300,
+            //   child: Column(
+            //     children: [
+            //       Text(
+            //         '${ (_rotation*180/3.14*100).floor()/100 }'
+            //       ),
+            //       Slider(
+            //         min: 0,
+            //         max: 3.14,
+            //         value: _rotation,
+            //         onChanged: (rot){
+            //           setState((){
+            //             var val = rot;
+            //             if(rot>3.14/2){
+            //               val = 3.14-rot;
+            //               if(!_right!.value){
+            //                 _turn();
+            //               }
+            //             }else if(_right!.value){
+            //               _turn();
+            //             }
+            //             _rotation = rot;
+            //
+            //             _setValue(val);
+            //           });
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            Positioned.fill(
+              child: FlowChart(
+                dashboard: _dashboard,
+              ),
             ),
-            SizedBox(
-              width: 300,
-              child: Column(
-                children: [
-                  Text(
-                    '${ (_rotation*180/3.14*100).floor()/100 }'
+            Positioned(
+              right: 0,
+              child: ElevatedButton(
+                onPressed: (){
+                  setState(() {
+                    _open = !_open;
+                  });
+                },
+                child: Icon(Icons.add),
+              ),
+            ),
+            if(_open)
+              Positioned(
+                right: 0,
+                top: 100,
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ConditionElement(
+                          boolFunc: ()=>_open
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('if'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement();
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('action'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = DataElement();
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('data'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                          callback: (){
+                            setState(() {
+                              _posX += 50;
+                            });
+                          },
+                          text: 'Move Right'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Move Right'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (){
+                              setState(() {
+                                _posX -= 50;
+                              });
+                            },
+                            text: 'Move Left'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Move Left'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (){
+                              setState(() {
+                                _posY += 50;
+                              });
+                            },
+                            text: 'Move Up'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Move Up'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (){
+                              setState(() {
+                                _posY -= 50;
+                              });
+                            },
+                            text: 'Move Down'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Move Down'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (){
+                              setState(() {
+                                _posX = 100;
+                                _posY = 100;
+                              });
+                            },
+                            text: 'Reset Position'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Reset Position'),
+                    ),
+                  ],
+                ),
+              ),
+            Positioned(
+              bottom: _posY,
+              left: _posX,
+              child: SizedBox(
+                width: 75,
+                height: 75,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.cyanAccent,
+                    borderRadius: BorderRadius.circular(5)
                   ),
-                  Slider(
-                    min: 0,
-                    max: 3.14,
-                    value: _rotation,
-                    onChanged: (rot){
-                      setState((){
-                        var val = rot;
-                        if(rot>3.14/2){
-                          val = 3.14-rot;
-                          if(!_right!.value){
-                            _turn();
-                          }
-                        }else if(_right!.value){
-                          _turn();
-                        }
-                        _rotation = rot;
-
-                        _setValue(val);
-                      });
-                    },
-                  ),
-                ],
+                ),
               ),
             )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _firing ? null : _trigger ,
+        // onPressed: _firing ? null : _trigger ,
+        onPressed: runFlow,
         tooltip: 'Fire',
-        child: const Icon(Icons.local_fire_department),
+        // child: const Icon(Icons.local_fire_department),
         backgroundColor: _firing ? Colors.grey : Colors.blue,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void runFlow(){
+    print("====================");
+    loop(start as StartElement);
+  }
+
+  void loop(AlgorithmFlowElement element){
+    print(element.text);
+    element.callback?.call();
+    Future.delayed(const Duration(milliseconds: 500),(){
+      for(var elem in _dashboard.getNextOf(element)){
+        loop(elem);
+      }
+    });
+
   }
 }
