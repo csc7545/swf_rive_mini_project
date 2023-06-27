@@ -73,13 +73,14 @@ class _MyHomePageState extends State<MyHomePage> {
   //   });
   // }
 
-  SMIBool? _fire;
+  SMITrigger? _fire;
   SMIBool? _right;
   Node? _node;
   double _rotation = 0;
+  bool _firing = false;
 
   void _tankInit(Artboard board){
-    final cont = StateMachineController.fromArtboard(board, 'State Machine 1');
+    final cont = StateMachineController.fromArtboard(board, 'State Machine 1', onStateChange: _onChange);
     board.addController(cont!);
     board.forEachComponent((p0) {
       // print(p0.name);
@@ -89,8 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
         // print(shape.rotation);
       }
     });
-    _fire = cont.findInput<bool>('firing') as SMIBool;
+    _fire = cont.findInput<bool>('fire') as SMITrigger;
     _right = cont.findInput<bool>('facingRight') as SMIBool;
+  }
+
+  void _onChange(String machineName, String stateName){
+    setState((){
+      _firing = stateName == 'fire';
+    });
   }
 
   void _setValue(double val){
@@ -98,13 +105,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _trigger(){
-    _fire?.value = true;
-    Future.delayed(const Duration(milliseconds: 100),()=> _fire?.value = false);
+    _fire?.fire();
   }
   
   void _turn(){
     _right?.value = !_right!.value;
   }
+
+  late SimpleAnimation animController = SimpleAnimation('fire');
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
             RiveAnimation.asset(
               'assets/tank.riv',
               stateMachines: ['State Machine 1'],
+              controllers: [animController],
               onInit: _tankInit,
             ),
             SizedBox(
@@ -165,9 +174,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _trigger,
+        onPressed: _firing ? null : _trigger ,
         tooltip: 'Fire',
         child: const Icon(Icons.local_fire_department),
+        backgroundColor: _firing ? Colors.grey : Colors.blue,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
