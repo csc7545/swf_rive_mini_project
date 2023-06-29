@@ -8,6 +8,8 @@ import 'package:rive_test/flowChart/src/elements/action_element.dart';
 import 'package:rive_test/flowChart/src/elements/algorithm_flow.dart';
 import 'package:rive_test/flowChart/src/elements/data_element.dart';
 import 'package:rive_test/flowChart/src/elements/start_element.dart';
+import 'package:rive_test/flowChart/src/elements/value_action_element.dart';
+import 'package:rive_test/flowChart/src/elements/value_element.dart';
 
 import 'flowChart/src/elements/condition_element.dart';
 
@@ -101,8 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double _rotation = 0;
   bool _firing = false;
 
-  double _posX = 100;
-  double _posY = 100;
+  double _posX = 0;
+  double _posY = 0;
 
   bool _open = false;
 
@@ -129,6 +131,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _setValue(double val){
     _node!.rotation = val;
+  }
+
+  void _rotate(double val) async {
+    double c = (val - _node!.rotation)/50;
+    for(int i = 0; i<50; i++){
+      _node!.rotation += c;
+      await Future.delayed(const Duration(milliseconds: 5));
+    }
   }
 
   void _trigger(){
@@ -198,8 +208,42 @@ class _MyHomePageState extends State<MyHomePage> {
             //   ),
             // ),
             Positioned.fill(
-              child: FlowChart(
-                dashboard: _dashboard,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: 10000,
+                    height: 10000,
+                    child: FlowChart(
+                      dashboard: _dashboard,
+                      onElementLongPressed: (context, offset, element){
+                        showMenu<int>(
+                          context: context,
+                          position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx, offset.dy),
+                          color: Colors.transparent,
+                          elevation: 0,
+                          items: [
+                            PopupMenuItem(
+                              child: ElevatedButton(
+                                onPressed: (){
+                                  _dashboard.removeElement(element);
+                                  Navigator.pop(context);
+                                },
+                                child: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                      onElementPressed: (context, offset, element){
+                        if(element is AlgorithmFlowElement){
+                          element.onTap?.call(context, offset);
+                        }
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
             Positioned(
@@ -248,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       onPressed: (){
                         var ee = ActionElement(
-                          callback: (){
+                          callback: (_){
                             setState(() {
                               _posX += 50;
                             });
@@ -263,7 +307,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       onPressed: (){
                         var ee = ActionElement(
-                            callback: (){
+                            callback: (_){
                               setState(() {
                                 _posX -= 50;
                               });
@@ -278,7 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       onPressed: (){
                         var ee = ActionElement(
-                            callback: (){
+                            callback: (_){
                               setState(() {
                                 _posY += 50;
                               });
@@ -293,7 +337,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       onPressed: (){
                         var ee = ActionElement(
-                            callback: (){
+                            callback: (_){
                               setState(() {
                                 _posY -= 50;
                               });
@@ -308,7 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       onPressed: (){
                         var ee = ActionElement(
-                            callback: (){
+                            callback: (_){
                               setState(() {
                                 _posX = 100;
                                 _posY = 100;
@@ -320,20 +364,101 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: const Text('Reset Position'),
                     ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (_)async{
+                              _fire?.fire();
+                              await Future.delayed(Duration(milliseconds: 400));
+                            },
+                            text: 'Fire'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Fire'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (_){
+                              setState(() {
+                                _rotate(pi/4);
+                              });
+                            },
+                            text: 'Rotate Up'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Rotate Up'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ActionElement(
+                            callback: (_){
+                              setState(() {
+                                _rotate(0);
+                              });
+                            },
+                            text: 'Rotate Down'
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Rotate Down'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ValueElement(valueKey: "ALOHA");
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Value1'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ValueElement(valueKey: "BETALA");
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Value2'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ValueElement(valueKey: "GAMALA");
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('Value3'),
+                    ),
+                    const SizedBox(height: 10,),
+                    ElevatedButton(
+                      onPressed: (){
+                        var ee = ValueActionElement(
+                          callback: (val){
+                            print(DataRepository.getData(val));
+                          }
+                        );
+                        _dashboard.addElement(ee);
+                      },
+                      child: const Text('print Value'),
+                    ),
                   ],
                 ),
               ),
-            Positioned(
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
               bottom: _posY,
               left: _posX,
               child: SizedBox(
-                width: 75,
-                height: 75,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.cyanAccent,
-                    borderRadius: BorderRadius.circular(5)
-                  ),
+                width: 150,
+                height: 150,
+                child: RiveAnimation.asset(
+                  'assets/tank.riv',
+                  stateMachines: ['State Machine 1'],
+                  controllers: [animController],
+                  onInit: _tankInit,
                 ),
               ),
             )
@@ -355,14 +480,12 @@ class _MyHomePageState extends State<MyHomePage> {
     loop(start as StartElement);
   }
 
-  void loop(AlgorithmFlowElement element){
+  void loop(AlgorithmFlowElement element) async {
     print(element.text);
-    element.callback?.call();
-    Future.delayed(const Duration(milliseconds: 500),(){
-      for(var elem in _dashboard.getNextOf(element)){
-        loop(elem);
-      }
-    });
-
+    await element.callback?.call(_dashboard);
+    await Future.delayed(const Duration(milliseconds: 600));
+    for(var elem in _dashboard.getNextOf(element)){
+      loop(elem);
+    }
   }
 }

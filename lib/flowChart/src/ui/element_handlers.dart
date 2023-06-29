@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rive_test/flowChart/src/elements/data_element.dart';
 
 import '../dashboard.dart';
 import '../elements/flow_element.dart';
@@ -102,16 +103,27 @@ class _ElementHandler extends StatelessWidget {
         alignment = const Alignment(-1.0, 0.0);
         break;
       case Handler.rightCenter:
-      default:
         alignment = const Alignment(1.0, 0.0);
+        break;
+      case Handler.rightUpper:
+        alignment = const Alignment(1.0, -0.6);
+        break;
+      case Handler.rightLower:
+        alignment = const Alignment(1.0, 0.6);
+        break;
+      default:
+        alignment = const Alignment(0.0, 0.0);
     }
 
     Offset tapDown = Offset.zero;
+
+    var isOutput = handler != Handler.topCenter && handler != Handler.rightLower && handler != Handler.rightUpper;
+
     return Align(
       alignment: alignment,
       child: DragTarget<Map>(
         onWillAccept: (data) {
-          if (handler != Handler.topCenter) return false;
+          if (isOutput) return false;
           DrawingArrow.instance.setParams(DrawingArrow.instance.params
               .copyWith(endArrowPosition: alignment));
           if (data != null && element == data['srcElement']) return false;
@@ -124,13 +136,22 @@ class _ElementHandler extends StatelessWidget {
             element.id,
             DrawingArrow.instance.params.copyWith(endArrowPosition: alignment),
           );
+          // data handle
+          if(element is DataElement){
+            final e = element as DataElement;
+            if(handler == Handler.rightUpper) {
+              e.operand1 = details.data['srcElement'].id;
+            } else if(handler == Handler.rightLower) {
+              e.operand2 = details.data['srcElement'].id;
+            }
+          }
         },
         onLeave: (data) {
           DrawingArrow.instance.setParams(DrawingArrow.instance.params
               .copyWith(endArrowPosition: const Alignment(0.0, 0.0)));
         },
         builder: (context, candidateData, rejectedData) {
-          return handler==Handler.topCenter? HandlerWidget(
+          return !isOutput ? HandlerWidget(
             width: handlerSize,
             height: handlerSize,
           ) : Draggable<Map>(
@@ -175,7 +196,7 @@ class _ElementHandler extends StatelessWidget {
               }
               DrawingArrow.instance.setTo(details.globalPosition -
                   dashboard.dashboardPosition +
-                  dashboard.handlerFeedbackOffset);
+                  dashboard.handlerFeedbackOffset );
             },
             onDragEnd: (details) {
               DrawingArrow.instance.reset();

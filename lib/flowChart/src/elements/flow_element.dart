@@ -18,6 +18,8 @@ enum Handler {
   bottomCenter,
   rightCenter,
   leftCenter,
+  rightUpper,
+  rightLower,
 }
 
 /// Class to store [ElementWidget]s and notify its changes

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:rive_test/flowChart/flutter_flow_chart.dart';
 import 'package:rive_test/flowChart/src/elements/algorithm_flow.dart';
-
-import 'flow_element.dart';
 
 class ActionElement extends AlgorithmFlowElement{
   ActionElement( {
-    void Function()? callback,
+    void Function(Dashboard)? callback,
     String? text
   }) : super(
     kind: ElementKind.rectangle,

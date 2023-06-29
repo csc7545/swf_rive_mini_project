@@ -24,20 +24,25 @@ class Dashboard extends ChangeNotifier {
       : elements = [],
         dashboardPosition = Offset.zero,
         dashboardSize = const Size(0, 0),
-        handlerFeedbackOffset = const Offset(-40, -40),
+        handlerFeedbackOffset = Offset.zero,
         gridBackgroundParams = const GridBackgroundParams();
 
   List<AlgorithmFlowElement> getNextOf(AlgorithmFlowElement element){
     var toReturn = <AlgorithmFlowElement>[];
 
     if(elements.contains(element)){
-      final indx = findElementIndexById(element.nextFlow??'');
-      if(indx!=-1) {
-        toReturn.add(elements[indx] as AlgorithmFlowElement);
+      final e = findElementById(element.nextFlow??'');
+      if(e!=null) {
+        toReturn.add(e as AlgorithmFlowElement);
       }
     }
 
     return toReturn;
+  }
+
+  FlowElement? findElementById(String id){
+    final e = elements.where((element) => element.id == id);
+    return e.isNotEmpty? e.first : null;
   }
 
   /// set grid background parameters

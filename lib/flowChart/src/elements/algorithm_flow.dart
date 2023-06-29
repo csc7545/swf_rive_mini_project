@@ -13,6 +13,7 @@ abstract class AlgorithmFlowElement extends FlowElement{
     List<Handler>? handlers,
     Color? backgroundColor,
     this.callback,
+    this.onTap
   }): super(
     handlerSize: 10,
     position: position ?? Offset.zero,
@@ -31,5 +32,6 @@ abstract class AlgorithmFlowElement extends FlowElement{
     elevation: 0.5
   );
 
-  dynamic Function()? callback;
+  dynamic Function(Dashboard board)? callback;
+  dynamic Function(BuildContext context, Offset offset)? onTap;
 }
